@@ -197,7 +197,7 @@ async function startViewer(localView, remoteView, formValues, onStatsReport, onR
         if (formValues.signedUrl) {
             console.log('[VIEWER] using provided presigned url for signaling channel');
             viewer.signalingClient = new KVSWebRTC.SignalingClient({
-                requestSigner: { getSignedURL: () => Promise.resolve(new URL(formValues.signedUrl)) },
+                requestSigner: { getSignedURL: () => Promise.resolve(formValues.signedUrl) },
                 channelARN,
                 channelEndpoint: endpointsByProtocol.WSS,
                 clientId: formValues.clientId,
