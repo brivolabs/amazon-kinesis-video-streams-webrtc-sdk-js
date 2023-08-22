@@ -71,6 +71,7 @@ function getFormValues() {
     return {
         region: $('#region').val(),
         channelName: $('#channelName').val(),
+        signedUrl: $('#signedUrl').val(),
         clientId: $('#clientId').val() || getRandomClientId(),
         sendVideo: $('#sendVideo').is(':checked'),
         sendAudio: $('#sendAudio').is(':checked'),
@@ -171,6 +172,7 @@ function printFormValues(formValues) {
     copyOfForm.accessKeyId = copyOfForm.accessKeyId.replace(/./g, '*');
     copyOfForm.secretAccessKey = copyOfForm.secretAccessKey.replace(/./g, '*');
     copyOfForm.sessionToken = copyOfForm.sessionToken?.replace(/./g, '*');
+    copyOfForm.signedUrl = copyOfForm.signedUrl?.replace(/./g, '*');
     console.log('[FORM_VALUES] Running the sample with the following options:', copyOfForm);
 }
 
@@ -392,6 +394,7 @@ async function printPeerConnectionStateInfo(event, logPrefix, remoteClientId) {
 const urlParams = new URLSearchParams(window.location.search);
 const fields = [
     { field: 'channelName', type: 'text' },
+    { field: 'signedUrl', type: 'text' },
     { field: 'clientId', type: 'text' },
     { field: 'region', type: 'text' },
     { field: 'accessKeyId', type: 'text' },

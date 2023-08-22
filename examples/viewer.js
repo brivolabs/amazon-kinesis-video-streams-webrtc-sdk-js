@@ -194,19 +194,32 @@ async function startViewer(localView, remoteView, formValues, onStatsReport, onR
         console.log('[VIEWER] ICE servers:', iceServers);
 
         // Create Signaling Client
-        viewer.signalingClient = new KVSWebRTC.SignalingClient({
-            channelARN,
-            channelEndpoint: endpointsByProtocol.WSS,
-            clientId: formValues.clientId,
-            role: KVSWebRTC.Role.VIEWER,
-            region: formValues.region,
-            credentials: {
-                accessKeyId: formValues.accessKeyId,
-                secretAccessKey: formValues.secretAccessKey,
-                sessionToken: formValues.sessionToken,
-            },
-            systemClockOffset: kinesisVideoClient.config.systemClockOffset,
-        });
+        if (formValues.signedUrl) {
+            console.log('[VIEWER] using provided presigned url for signaling channel');
+            viewer.signalingClient = new KVSWebRTC.SignalingClient({
+                requestSigner: { getSignedURL: () => Promise.resolve(new URL(formValues.signedUrl)) },
+                channelARN,
+                channelEndpoint: endpointsByProtocol.WSS,
+                clientId: formValues.clientId,
+                role: KVSWebRTC.Role.VIEWER,
+                region: formValues.region,
+                systemClockOffset: kinesisVideoClient.config.systemClockOffset,
+            });
+        } else {
+            viewer.signalingClient = new KVSWebRTC.SignalingClient({
+                channelARN,
+                channelEndpoint: endpointsByProtocol.WSS,
+                clientId: formValues.clientId,
+                role: KVSWebRTC.Role.VIEWER,
+                region: formValues.region,
+                credentials: {
+                    accessKeyId: formValues.accessKeyId,
+                    secretAccessKey: formValues.secretAccessKey,
+                    sessionToken: formValues.sessionToken,
+                },
+                systemClockOffset: kinesisVideoClient.config.systemClockOffset,
+            });
+        }
 
         const resolution = formValues.widescreen
             ? {
@@ -227,7 +240,7 @@ async function startViewer(localView, remoteView, formValues, onStatsReport, onR
             const dataChannelObj = viewer.peerConnection.createDataChannel('kvsDataChannel');
             viewer.dataChannel = dataChannelObj;
             dataChannelObj.onopen = event => {
-                dataChannelObj.send("Opened data channel by viewer");
+                dataChannelObj.send('Opened data channel by viewer');
             };
             // Callback for the data channel created by viewer
             dataChannelObj.onmessage = onRemoteDataMessage;
